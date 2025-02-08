@@ -10,7 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_31_093219) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_08_142434) do
+  create_table "priced_prices", force: :cascade do |t|
+    t.string "priceable_type", null: false
+    t.integer "priceable_id", null: false
+    t.string "price_type"
+    t.integer "price_cents", default: 0, null: false
+    t.string "price_currency", default: "USD", null: false
+    t.string "duration_unit"
+    t.integer "duration_value"
+    t.date "start_date"
+    t.date "end_date"
+    t.boolean "recurring", default: false
+    t.integer "recurring_start_month"
+    t.integer "recurring_start_day"
+    t.integer "recurring_start_wday"
+    t.integer "recurring_end_month"
+    t.integer "recurring_end_day"
+    t.integer "recurring_end_wday"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["priceable_type", "priceable_id"], name: "index_priced_prices_on_priceable"
+  end
+
   create_table "rooms", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
