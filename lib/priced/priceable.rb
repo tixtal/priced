@@ -25,66 +25,74 @@ module Priced
       accepts_nested_attributes_for :seasonal_prices, :weekend_prices, :base_prices
     end
 
+    def price_at(
+      date:,
+      duration_unit: Priced.default_duration_unit,
+      duration_value: Priced.default_duration_value
+    )
+      seasonal_price_at(date:, duration_unit:, duration_value:) ||
+        weekend_price_at(date:, duration_unit:, duration_value:) ||
+        base_price(duration_unit:, duration_value:)
+    end
+
     def current_price(
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      current_seasonal_price(duration_unit:, duration_value:) ||
-        current_weekend_price(duration_unit:, duration_value:) ||
-        current_base_price(duration_unit:, duration_value:)
+      price_at(date: Time.zone.today, duration_unit:, duration_value:)
     end
 
-    def current_base_price(
+    def base_price(
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
       base_prices.where(duration_unit:, duration_value:).first
     end
 
-    def current_weekend_price(
+    def weekend_price_at(
+      date:,
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      return if Priced.weekend_days.exclude?(Time.zone.today.wday)
+      return unless Priced.weekend_days.include?(date.wday)
 
       weekend_prices.where(duration_unit:, duration_value:).first
     end
 
-    def current_seasonal_price(
+    def seasonal_price_at(
+      date:,
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      today = Time.zone.today
-
       seasonal_prices.where(duration_unit:, duration_value:)
                      .where(
-                        current_seasonal_price_sql,
-                        today:,
-                        today_month: today.month,
-                        today_day: today.day,
-                        today_wday: today.wday,
+                        seasonal_price_at_sql,
+                        date:,
+                        month: date.month,
+                        day: date.day,
+                        wday: date.wday,
                      ).order(start_date: :desc).first
     end
 
     private
 
-    def current_seasonal_price_sql
+    def seasonal_price_at_sql
       <<-SQL.squish
         CASE
           WHEN recurring_start_month IS NOT NULL
             THEN (
-              (:today_month BETWEEN recurring_start_month AND recurring_end_month) AND
+              (:month BETWEEN recurring_start_month AND recurring_end_month) AND
               (
                 CASE
                   WHEN recurring_start_wday IS NOT NULL
-                    THEN (:today_wday BETWEEN recurring_start_wday AND recurring_end_wday)
+                    THEN (:wday BETWEEN recurring_start_wday AND recurring_end_wday)
                   ELSE
-                    (:today_day BETWEEN recurring_start_day AND recurring_end_day)
+                    (:day BETWEEN recurring_start_day AND recurring_end_day)
                 END
              )
             )
           ELSE
-            start_date <= :today AND end_date >= :today
+            start_date <= :date AND end_date >= :date
         END
       SQL
     end
