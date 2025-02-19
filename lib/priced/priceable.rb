@@ -4,19 +4,19 @@ module Priced
 
     included do
       has_many :seasonal_prices,
-               -> { active.seasonal_price },
+               -> { seasonal_price },
                as: :priceable,
                class_name: "Priced::Price",
                dependent: :destroy,
                before_add: ->(_, price) { price.price_type = :seasonal }
       has_many :weekend_prices,
-              -> { active.weekend_price },
+              -> { weekend_price },
               as: :priceable,
               class_name: "Priced::Price",
               dependent: :destroy,
               before_add: ->(_, price) { price.price_type = :weekend }
       has_many :base_prices,
-              -> { active.base_price },
+              -> { base_price },
               as: :priceable,
               class_name: "Priced::Price",
               dependent: :destroy,
@@ -24,6 +24,13 @@ module Priced
 
       accepts_nested_attributes_for :seasonal_prices, :weekend_prices,
                                     :base_prices, allow_destroy: true
+    end
+
+    def current_price(
+      duration_unit: Priced.default_duration_unit,
+      duration_value: Priced.default_duration_value
+    )
+      price_at(date: Time.zone.today, duration_unit:, duration_value:)
     end
 
     def price_at(
@@ -36,18 +43,11 @@ module Priced
         base_price(duration_unit:, duration_value:)
     end
 
-    def current_price(
-      duration_unit: Priced.default_duration_unit,
-      duration_value: Priced.default_duration_value
-    )
-      price_at(date: Time.zone.today, duration_unit:, duration_value:)
-    end
-
     def base_price(
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      base_prices.where(duration_unit:, duration_value:).first
+      base_prices.active.where(duration_unit:, duration_value:).first
     end
 
     def weekend_price_at(
@@ -57,7 +57,7 @@ module Priced
     )
       return unless Priced.weekend_days.include?(date.wday)
 
-      weekend_prices.where(duration_unit:, duration_value:).first
+      weekend_prices.active.where(duration_unit:, duration_value:).first
     end
 
     def seasonal_price_at(
@@ -65,7 +65,8 @@ module Priced
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      seasonal_prices.where(duration_unit:, duration_value:)
+      seasonal_prices.active
+                     .where(duration_unit:, duration_value:)
                      .where(
                         seasonal_price_at_sql,
                         date:,
