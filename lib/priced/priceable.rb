@@ -22,7 +22,8 @@ module Priced
               dependent: :destroy,
               before_add: ->(_, price) { price.price_type = :base }
 
-      accepts_nested_attributes_for :seasonal_prices, :weekend_prices, :base_prices
+      accepts_nested_attributes_for :seasonal_prices, :weekend_prices,
+                                    :base_prices, allow_destroy: true
     end
 
     def price_at(
