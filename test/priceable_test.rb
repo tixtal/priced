@@ -64,4 +64,33 @@ class PriceableTest < ActiveSupport::TestCase
 
     assert_equal seasonal_price, priceable.current_price
   end
+
+  test "should be able to build base price" do
+    priceable = rooms(:single)
+    base_price = priceable.base_prices.build
+
+    assert base_price.base_price?
+  end
+
+  test "should be able to build seasonal price" do
+    priceable = rooms(:single)
+
+    seasonal_price = priceable.seasonal_prices.build(
+      start_date: Time.zone.today,
+      end_date: Time.zone.today + 1.day
+    )
+
+    assert seasonal_price.seasonal_price?
+  end
+
+  test "should be able to build weekend price" do
+    priceable = rooms(:single)
+
+    weekend_price = priceable.weekend_prices.build(
+      duration_unit: :hours,
+      duration_value: 1
+    )
+
+    assert weekend_price.weekend_price?
+  end
 end

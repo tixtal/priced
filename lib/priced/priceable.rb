@@ -8,19 +8,19 @@ module Priced
                as: :priceable,
                class_name: "Priced::Price",
                dependent: :destroy,
-               before_add: ->(price) { price.price_type = :seasonal }
+               before_add: ->(_, price) { price.price_type = :seasonal }
       has_many :weekend_prices,
               -> { active.weekend_price },
               as: :priceable,
               class_name: "Priced::Price",
               dependent: :destroy,
-              before_add: ->(price) { price.price_type = :weekend }
+              before_add: ->(_, price) { price.price_type = :weekend }
       has_many :base_prices,
               -> { active.base_price },
               as: :priceable,
               class_name: "Priced::Price",
               dependent: :destroy,
-              before_add: ->(price) { price.price_type = :base }
+              before_add: ->(_, price) { price.price_type = :base }
 
       accepts_nested_attributes_for :seasonal_prices, :weekend_prices, :base_prices
     end
