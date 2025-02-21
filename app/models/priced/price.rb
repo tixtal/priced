@@ -21,7 +21,8 @@ module Priced
 
     monetize :price_cents, numericality: { greater_than_or_equal_to: 0 }
 
-    before_validation -> { self.duration_value = Priced.default_duration_value }, unless: :duration_value?
+    after_initialize -> { self.duration_value = Priced.default_duration_value },
+                        unless: :duration_value?
 
     validates :price_type, presence: true
     validates :price_type,
