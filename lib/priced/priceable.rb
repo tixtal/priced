@@ -55,7 +55,7 @@ module Priced
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      return unless Priced.weekend_days.include?(date.wday)
+      return unless Date::WEEKEND_DAYS.include?(date.wday)
 
       weekend_prices.active.where(duration_unit:, duration_value:).first
     end
