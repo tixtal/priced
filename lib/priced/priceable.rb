@@ -30,17 +30,27 @@ module Priced
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      price_at(date: Time.zone.today, duration_unit:, duration_value:)
+      price_at(Time.zone.today, duration_unit:, duration_value:)
+    end
+
+    def current_prices
+      prices_at(Time.zone.today)
     end
 
     def price_at(
-      date:,
+      date,
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      seasonal_price_at(date:, duration_unit:, duration_value:) ||
-        weekend_price_at(date:, duration_unit:, duration_value:) ||
+      seasonal_price_at(date, duration_unit:, duration_value:) ||
+        weekend_price_at(date, duration_unit:, duration_value:) ||
         base_price(duration_unit:, duration_value:)
+    end
+
+    def prices_at(date)
+      seasonal_prices_at(date).presence ||
+        weekend_prices_at(date).presence ||
+        base_prices.active
     end
 
     def base_price(
@@ -51,29 +61,36 @@ module Priced
     end
 
     def weekend_price_at(
-      date:,
+      date,
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
-      return unless Date::WEEKEND_DAYS.include?(date.wday)
+      weekend_prices_at(date).where(duration_unit:, duration_value:).first
+    end
 
-      weekend_prices.active.where(duration_unit:, duration_value:).first
+    def weekend_prices_at(date)
+      return weekend_prices.none unless Date::WEEKEND_DAYS.include?(date.wday)
+
+      weekend_prices.active
     end
 
     def seasonal_price_at(
-      date:,
+      date,
       duration_unit: Priced.default_duration_unit,
       duration_value: Priced.default_duration_value
     )
+      seasonal_prices_at(date).where(duration_unit:, duration_value:).first
+    end
+
+    def seasonal_prices_at(date)
       seasonal_prices.active
-                     .where(duration_unit:, duration_value:)
                      .where(
                         seasonal_price_at_sql,
                         date:,
                         month: date.month,
                         day: date.day,
                         wday: date.wday,
-                     ).order(start_date: :desc).first
+                     ).order(start_date: :desc)
     end
 
     private
