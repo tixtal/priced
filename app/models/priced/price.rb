@@ -19,7 +19,7 @@ module Priced
     scope :active, -> { where(active: true) }
     scope :inactive, -> { where(active: false) }
 
-    monetize :price_cents, numericality: { greater_than_or_equal_to: 0 }
+    monetize :amount_cents, numericality: { greater_than_or_equal_to: 0 }
 
     after_initialize -> { self.duration_value = Priced.default_duration_value },
                         unless: :duration_value?

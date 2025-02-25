@@ -3,7 +3,7 @@ class CreatePricedPrices < ActiveRecord::Migration[8.0]
     create_table :priced_prices do |t|
       t.references :priceable, polymorphic: true, null: false
       t.string :price_type
-      t.monetize :price
+      t.monetize :amount
       t.string :duration_unit
       t.integer :duration_value
       t.date :start_date

@@ -1,21 +1,21 @@
 single_room_base_price:
   priceable: single (Room)
-  price_cents: 100
-  price_currency: USD
+  amount_cents: 100
+  amount_currency: USD
   price_type: base
   duration_unit: days
   duration_value: 1
 single_room_weekend_price:
   priceable: single (Room)
-  price_cents: 150
-  price_currency: USD
+  amount_cents: 150
+  amount_currency: USD
   price_type: weekend
   duration_unit: days
   duration_value: 1
 single_room_seasonal_price:
   priceable: single (Room)
-  price_cents: 200
-  price_currency: USD
+  amount_cents: 200
+  amount_currency: USD
   price_type: seasonal
   start_date: <%= Time.zone.now + 1.day %>
   end_date: <%= Time.zone.now + 2.days %>
@@ -24,22 +24,22 @@ single_room_seasonal_price:
 
 deluxe_room_base_price:
   priceable: deluxe (Room)
-  price_cents: 200
-  price_currency: USD
+  amount_cents: 200
+  amount_currency: USD
   price_type: base
   duration_unit: days
   duration_value: 1
 deluxe_room_weekend_price:
   priceable: deluxe (Room)
-  price_cents: 300
-  price_currency: USD
+  amount_cents: 300
+  amount_currency: USD
   price_type: weekend
   duration_unit: days
   duration_value: 1
 deluxe_room_seasonal_price:
   priceable: deluxe (Room)
-  price_cents: 400
-  price_currency: USD
+  amount_cents: 400
+  amount_currency: USD
   price_type: seasonal
   start_date: <%= Time.zone.now + 1.day %>
   end_date: <%= Time.zone.now + 2.days %>

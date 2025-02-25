@@ -13,11 +13,11 @@ class Priced::PriceTest < ActiveSupport::TestCase
     assert_includes price.errors.messages[:price_type], "can't be blank"
   end
 
-  test "validate length of price_cents" do
-    price = Priced::Price.new(price: -1)
+  test "validate length of amount_cents" do
+    price = Priced::Price.new(amount: -1)
 
     assert_not price.valid?
-    assert_includes price.errors.messages[:price], "must be greater than or equal to 0"
+    assert_includes price.errors.messages[:amount], "must be greater than or equal to 0"
   end
 
   test "should validate uniqueness of price_type unless seasonal price" do
