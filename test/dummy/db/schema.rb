@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_08_142434) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_25_150239) do
   create_table "priced_prices", force: :cascade do |t|
     t.string "priceable_type", null: false
     t.integer "priceable_id", null: false
@@ -31,7 +31,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_08_142434) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_priced_prices_on_active"
+    t.index ["duration_unit", "duration_value"], name: "index_priced_prices_on_duration"
+    t.index ["price_type"], name: "index_priced_prices_on_price_type"
     t.index ["priceable_type", "priceable_id"], name: "index_priced_prices_on_priceable"
+    t.index ["recurring_start_day", "recurring_end_day"], name: "index_priced_prices_on_recurring_days"
+    t.index ["recurring_start_month", "recurring_end_month"], name: "index_priced_prices_on_recurring_months"
+    t.index ["recurring_start_wday", "recurring_end_wday"], name: "index_priced_prices_on_recurring_wdays"
+    t.index ["start_date", "end_date"], name: "index_priced_prices_on_dates"
   end
 
   create_table "rooms", force: :cascade do |t|

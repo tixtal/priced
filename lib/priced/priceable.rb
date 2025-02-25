@@ -100,13 +100,13 @@ module Priced
         CASE
           WHEN recurring_start_month IS NOT NULL
             THEN (
-              (:month BETWEEN recurring_start_month AND recurring_end_month) AND
+              (:month >= recurring_start_month AND :month <= recurring_end_month) AND
               (
                 CASE
                   WHEN recurring_start_wday IS NOT NULL
-                    THEN (:wday BETWEEN recurring_start_wday AND recurring_end_wday)
+                    THEN (:wday >= recurring_start_wday AND :wday <= recurring_end_wday)
                   ELSE
-                    (:day BETWEEN recurring_start_day AND recurring_end_day)
+                    (:day >= recurring_start_day AND :day <= recurring_end_day)
                 END
              )
             )
