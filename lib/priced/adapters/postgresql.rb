@@ -17,6 +17,10 @@ module Priced
         def cast_to_date(date)
           "#{date}::date"
         end
+
+        def add_date_days(date, days)
+          "#{date} + INTERVAL '#{days} days'"
+        end
       end
     end
   end

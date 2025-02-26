@@ -71,5 +71,28 @@ module Priced
     def prices_at(date)
       prices.at(date)
     end
+
+    def prices_within(start_date, end_date)
+      within_sql = Query.prices_within(self, ":start_date", ":end_date")
+
+      Priced::Price.find_by_sql([ within_sql, { start_date:, end_date: } ]).group_by(&:date)
+    end
+
+    def price_within(
+      start_date,
+      end_date,
+      duration_unit: Priced.default_duration_unit,
+      duration_value: Priced.default_duration_value
+    )
+      within_sql = <<-SQL.squish
+      #{Query.prices_within(self, ":start_date", ":end_date")}
+        AND priced_prices.duration_unit = :duration_unit
+        AND priced_prices.duration_value = :duration_value
+      SQL
+
+      Priced::Price.find_by_sql(
+        [ within_sql, { start_date:, end_date:, duration_unit:, duration_value: } ]
+      ).group_by(&:date).transform_values(&:first)
+    end
   end
 end

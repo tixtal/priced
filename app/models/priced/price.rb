@@ -20,7 +20,9 @@ module Priced
     scope :inactive, -> { where(active: false) }
     scope :current, -> { active.at(Time.zone.today) }
     scope :at, lambda { |date|
-      where(Query.match_price_type_at(date))
+      sql = Query.match_price_type_at(":date")
+
+      where(sanitize_sql_for_conditions([ sql, date: ]))
     }
 
     monetize :amount_cents, numericality: { greater_than_or_equal_to: 0 }

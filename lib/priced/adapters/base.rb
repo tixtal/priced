@@ -17,6 +17,10 @@ module Priced
         def cast_to_date(date)
           raise NotImplementedError
         end
+
+        def add_date_days(date, days)
+          raise NotImplementedError
+        end
       end
     end
   end
