@@ -19,7 +19,8 @@ class PriceableTest < ActiveSupport::TestCase
   end
 
   test "should be able to get current price as base price" do
-    Date::WEEKEND_DAYS = [ Time.zone.today.wday + 1, Time.zone.today.wday + 2 ]
+    Date.const_set(:WEEKEND_DAYS, [ Time.zone.today.wday + 1, Time.zone.today.wday + 2 ])
+
     priceable = rooms(:single)
 
     assert_equal priceable.base_price, priceable.current_price
@@ -35,7 +36,8 @@ class PriceableTest < ActiveSupport::TestCase
   end
 
   test "should be able to get current price as weekend price" do
-    Date::WEEKEND_DAYS = [ Time.zone.today.wday, Time.zone.today.wday + 1 ]
+    Date.const_set(:WEEKEND_DAYS, [ Time.zone.today.wday, Time.zone.today.wday + 1 ])
+
     weekend_price = priced_prices(:single_room_weekend_price)
 
     priceable = rooms(:single)
@@ -44,7 +46,8 @@ class PriceableTest < ActiveSupport::TestCase
   end
 
   test "should be able to get current price as weekend price if no seasonal price" do
-    Date::WEEKEND_DAYS = [ Time.zone.today.wday, Time.zone.today.wday + 1 ]
+    Date.const_set(:WEEKEND_DAYS, [ Time.zone.today.wday, Time.zone.today.wday + 1 ])
+
     seasonal_price = priced_prices(:single_room_seasonal_price)
     seasonal_price.update(start_date: Time.zone.today + 1.day, end_date: Time.zone.today + 2.days)
 
@@ -56,7 +59,8 @@ class PriceableTest < ActiveSupport::TestCase
   end
 
   test "should get seasonal price on weekend" do
-    Date::WEEKEND_DAYS = [ Time.zone.today.wday, Time.zone.today.wday + 1 ]
+    Date.const_set(:WEEKEND_DAYS, [ Time.zone.today.wday, Time.zone.today.wday + 1 ])
+
     seasonal_price = priced_prices(:single_room_seasonal_price)
     seasonal_price.update(start_date: Time.zone.today - 1.day, end_date: Time.zone.today + 1.day)
 
