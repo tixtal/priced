@@ -19,7 +19,7 @@ module Priced
         end
 
         def add_date_days(date, days)
-          "#{date} + INTERVAL '#{days} days'"
+          "(#{date} + INTERVAL '#{days} days')::date"
         end
       end
     end
