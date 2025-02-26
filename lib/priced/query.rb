@@ -1,15 +1,15 @@
 module Priced
   class Query
     @@adapter = case ActiveRecord::Base.connection.adapter_name.downcase.to_sym
-    when :postgresql, :postgis
-                 Priced::Adapters::PostgreSQL
-    when :mysql
-                 Priced::Adapters::MySQL
-    when :sqlite
-                 Priced::Adapters::SQLite
-    else
-                 raise "Unsupported database adapter"
-    end
+                when :postgresql, :postgis
+                  Priced::Adapters::PostgreSQL
+                when :mysql
+                  Priced::Adapters::MySQL
+                when :sqlite
+                  Priced::Adapters::SQLite
+                else
+                  raise "Unsupported database adapter"
+                end
 
     class << self
       def prices_within(priceable, start_date, end_date)
