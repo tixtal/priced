@@ -1,17 +1,19 @@
 module Priced
   class Query
-    @@adapter = case ActiveRecord::Base.connection.adapter_name.downcase.to_sym
-                when :postgresql, :postgis
-                  Priced::Adapters::PostgreSQL
-                when :mysql
-                  Priced::Adapters::MySQL
-                when :sqlite
-                  Priced::Adapters::SQLite
-                else
-                  raise "Unsupported database adapter"
-                end
-
     class << self
+      def adapter
+        case ActiveRecord::Base.connection.adapter_name.downcase.to_sym
+        when :postgresql, :postgis
+          Priced::Adapters::PostgreSQL
+        when :mysql
+          Priced::Adapters::MySQL
+        when :sqlite
+          Priced::Adapters::SQLite
+        else
+          raise "Unsupported database adapter"
+        end
+      end
+
       def prices_within(priceable, start_date, end_date)
         <<-SQL.squish
           WITH RECURSIVE dates AS (
@@ -112,9 +114,5 @@ module Priced
         "price_type = 'base'"
       end
     end
-
-    private
-
-    cattr_reader :adapter
   end
 end
