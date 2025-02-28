@@ -1,6 +1,7 @@
 module Priced
   class Price < ApplicationRecord
-    belongs_to :priceable, polymorphic: true
+    attribute :duration_unit, default: -> { Priced.default_duration_unit }
+    attribute :duration_value, default: -> { Priced.default_duration_value }
 
     enum :price_type, {
       base: "base",
@@ -8,13 +9,7 @@ module Priced
       weekend: "weekend"
     }, suffix: :price
 
-    enum :duration_unit, {
-      hours: "hours",
-      days: "days",
-      weeks: "weeks",
-      months: "months",
-      years: "years"
-    }, prefix: :duration_unit, default: Priced.default_duration_unit
+    belongs_to :priceable, polymorphic: true
 
     scope :active, -> { where(active: true) }
     scope :inactive, -> { where(active: false) }
@@ -26,9 +21,6 @@ module Priced
     }
 
     monetize :amount_cents, numericality: { greater_than_or_equal_to: 0 }
-
-    after_initialize -> { self.duration_value = Priced.default_duration_value },
-                        unless: :duration_value?
 
     validates :price_type, presence: true
     validates :price_type,
