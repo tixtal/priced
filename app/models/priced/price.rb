@@ -11,9 +11,7 @@ module Priced
 
     belongs_to :priceable, polymorphic: true
 
-    scope :active, -> { where(active: true) }
-    scope :inactive, -> { where(active: false) }
-    scope :current, -> { active.at(Time.zone.today) }
+    scope :current, -> { at(Time.zone.today) }
     scope :at, lambda { |date|
       sql = Query.match_price_type_at(":date")
 
@@ -25,8 +23,8 @@ module Priced
     validates :price_type, presence: true
     validates :price_type,
               uniqueness: {
-                scope: %i[duration_unit duration_value priceable_id priceable_type active]
-              }, if: -> { active? && !seasonal_price? }
+                scope: %i[duration_unit duration_value priceable_id priceable_type]
+              }, if: -> { !seasonal_price? }
     validates :start_date, :end_date, presence: true, if: :non_recurring_season?
     validates :end_date, comparison: { greater_than_or_equal_to: :start_date }, if: :non_recurring_season?
     validate :dates_not_overlapped, if: :non_recurring_season?
@@ -35,14 +33,6 @@ module Priced
               if: -> { recurring_season? && !recurring_start_wday? && !recurring_end_wday? }
     validates :recurring_start_wday, :recurring_end_wday, presence: true,
               if: -> { recurring_season? && !recurring_start_day? && !recurring_end_day? }
-
-    def active?
-      active
-    end
-
-    def inactive?
-      !active?
-    end
 
     def recurring_season?
       seasonal_price? && recurring?
@@ -56,7 +46,6 @@ module Priced
 
     def dates_not_overlapped
       overlaped = self.class
-                      .active
                       .where(priceable:, price_type:, duration_unit:, duration_value:)
                       .where.not(id:)
                       .where(
@@ -67,8 +56,8 @@ module Priced
 
       return unless overlaped
 
-      errors.add(:start_date, "dates are overlapping with other active seasonal prices")
-      errors.add(:end_date, "dates are overlapping with other active seasonal prices")
+      errors.add(:start_date, "dates are overlapping with other seasonal prices")
+      errors.add(:end_date, "dates are overlapping with other seasonal prices")
     end
   end
 end
