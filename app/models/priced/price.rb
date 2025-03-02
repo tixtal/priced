@@ -13,7 +13,7 @@ module Priced
 
     scope :current, -> { at(Time.zone.today) }
     scope :at, lambda { |date|
-      sql = Query.match_price_type_at(":date")
+      sql = Query.match_prices_at(":date")
 
       where(sanitize_sql_for_conditions([ sql, date: ]))
     }

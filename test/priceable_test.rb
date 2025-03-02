@@ -97,4 +97,28 @@ class PriceableTest < ActiveSupport::TestCase
 
     assert weekend_price.weekend_price?
   end
+
+  test "should be able to get correct price at date" do
+    priceable = rooms(:single)
+
+    assert_equal priced_prices(:single_room_seasonal_price),
+                 priceable.price_at(Time.zone.today + 1.day)
+  end
+
+  test "should be able to get correct price within date range" do
+    priceable = rooms(:single)
+
+    prices = priceable.price_within(Time.zone.today, Time.zone.today + 3.day)
+    seasonal_price = priced_prices(:single_room_seasonal_price)
+
+    (Time.zone.today..(Time.zone.today + 3.day)).each do |date|
+      assert_equal priceable.price_at(date), prices[date.to_s]
+
+      if date.to_s == seasonal_price.start_date.to_s || date.to_s == seasonal_price.end_date.to_s
+        assert_equal seasonal_price, prices[date.to_s]
+      else
+        refute_equal seasonal_price, prices[date.to_s]
+      end
+    end
+  end
 end
