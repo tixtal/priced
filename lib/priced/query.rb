@@ -14,7 +14,7 @@ module Priced
         end
       end
 
-      def prices_within(priceable, start_date, end_date)
+      def prices_within(start_date, end_date)
         <<-SQL.squish
           WITH RECURSIVE dates AS (
             SELECT #{self.adapter.cast_to_date(start_date)} AS date
@@ -27,8 +27,6 @@ module Priced
           SELECT dates.date, priced_prices.* FROM dates
           INNER JOIN priced_prices
           ON #{self.match_price_type_at('dates.date')}
-          AND priced_prices.priceable_id = #{priceable.id}
-          AND priced_prices.priceable_type = '#{priceable.class.base_class.name}'
         SQL
       end
 
