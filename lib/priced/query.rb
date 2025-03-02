@@ -17,46 +17,43 @@ module Priced
       def prices_within(start_date, end_date)
         <<-SQL.squish
           WITH RECURSIVE dates AS (
-            SELECT #{self.adapter.cast_to_date(start_date)} AS date
+            SELECT #{adapter.cast_to_date(start_date)} AS date
             UNION ALL
-            SELECT #{self.adapter.add_date_days('date', 1)} AS date
+            SELECT #{adapter.add_date_days('date', 1)} AS date
             FROM dates
-            WHERE date < #{self.adapter.cast_to_date(end_date)}
+            WHERE date < #{adapter.cast_to_date(end_date)}
           )
 
           SELECT dates.date, priced_prices.* FROM dates
           INNER JOIN priced_prices
-          ON #{self.match_price_type_at('dates.date')}
+          ON #{match_price_type_at('dates.date')}
         SQL
       end
 
       def match_price_type_at(date)
         <<-SQL.squish
-          priced_prices.price_type = (
+          (
             SELECT
             CASE
-              WHEN EXISTS (
-                SELECT 1 FROM priced_prices AS non_recurring_seasonal_prices
-                WHERE
-                  non_recurring_seasonal_prices.priceable_id = priced_prices.priceable_id
-                  AND non_recurring_seasonal_prices.priceable_type = priced_prices.priceable_type
-                  AND #{self.match_non_recurring_seasonal_prices_at(date)}
-              ) THEN 'seasonal'
-              WHEN EXISTS (
-                SELECT 1 FROM priced_prices AS recurring_seasonal_prices
-                WHERE
-                  recurring_seasonal_prices.priceable_id = priced_prices.priceable_id
-                  AND recurring_seasonal_prices.priceable_type = priced_prices.priceable_type
-                  AND #{self.match_recurring_seasonal_prices_at(date)}
-              ) THEN 'seasonal'
-              WHEN EXISTS (
-                SELECT 1 FROM priced_prices AS weekend_prices
-                WHERE
-                  weekend_prices.priceable_id = priced_prices.priceable_id
-                  AND weekend_prices.priceable_type = priced_prices.priceable_type
-                  AND #{self.match_weekend_prices_at(date)}
-              ) THEN 'weekend'
-            ELSE 'base'
+            WHEN EXISTS (
+              SELECT 1 FROM priced_prices AS non_recurring_seasonal_prices
+              WHERE non_recurring_seasonal_prices.priceable_id = priced_prices.priceable_id
+              AND non_recurring_seasonal_prices.priceable_type = priced_prices.priceable_type
+              AND #{match_non_recurring_seasonal_prices_at(date)}
+            ) THEN #{match_non_recurring_seasonal_prices_at(date)}
+            WHEN EXISTS (
+              SELECT 1 FROM priced_prices AS recurring_seasonal_prices
+              WHERE recurring_seasonal_prices.priceable_id = priced_prices.priceable_id
+              AND recurring_seasonal_prices.priceable_type = priced_prices.priceable_type
+              AND #{match_recurring_seasonal_prices_at(date)}
+            ) THEN #{match_recurring_seasonal_prices_at(date)}
+            WHEN EXISTS (
+              SELECT 1 FROM priced_prices AS weekend_prices
+              WHERE weekend_prices.priceable_id = priced_prices.priceable_id
+              AND weekend_prices.priceable_type = priced_prices.priceable_type
+              AND #{match_weekend_prices_at(date)}
+            ) THEN #{match_weekend_prices_at(date)}
+            ELSE #{match_base_prices}
             END
           )
         SQL
