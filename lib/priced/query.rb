@@ -42,17 +42,11 @@ module Priced
               AND #{match_non_recurring_seasonal_prices_at(date)}
             ) THEN #{match_non_recurring_seasonal_prices_at(date)}
             WHEN EXISTS (
-              SELECT 1 FROM priced_prices AS recurring_seasonal_by_day_prices
-              WHERE recurring_seasonal_by_day_prices.priceable_id = priced_prices.priceable_id
-              AND recurring_seasonal_by_day_prices.priceable_type = priced_prices.priceable_type
-              AND #{match_recurring_seasonal_prices_at(date, by: :day)}
-            ) THEN #{match_recurring_seasonal_prices_at(date, by: :day)}
-            WHEN EXISTS (
-              SELECT 1 FROM priced_prices AS recurring_seasonal_by_wday_prices
-              WHERE recurring_seasonal_by_wday_prices.priceable_id = priced_prices.priceable_id
-              AND recurring_seasonal_by_wday_prices.priceable_type = priced_prices.priceable_type
-              AND #{match_recurring_seasonal_prices_at(date, by: :wday)}
-            ) THEN #{match_recurring_seasonal_prices_at(date, by: :wday)}
+              SELECT 1 FROM priced_prices AS recurring_seasonal_prices
+              WHERE recurring_seasonal_prices.priceable_id = priced_prices.priceable_id
+              AND recurring_seasonal_prices.priceable_type = priced_prices.priceable_type
+              AND #{match_recurring_seasonal_prices_at(date)}
+            ) THEN #{match_recurring_seasonal_prices_at(date)}
             WHEN EXISTS (
               SELECT 1 FROM priced_prices AS weekend_prices
               WHERE weekend_prices.priceable_id = priced_prices.priceable_id
@@ -65,25 +59,25 @@ module Priced
         SQL
       end
 
-      def match_recurring_seasonal_prices_at(date, by:)
-        <<-SQL.squish
-          price_type = 'seasonal'
-          AND recurring IS TRUE
-          AND #{adapter.extract_month(date)} >= recurring_start_month
-          AND #{adapter.extract_month(date)} <= recurring_end_month
-          AND recurring_start_#{by} IS NOT NULL
-          AND recurring_end_#{by} IS NOT NULL
-          AND #{adapter.send("extract_#{by}", date)} >= recurring_start_#{by}
-          AND #{adapter.send("extract_#{by}", date)} <= recurring_end_#{by}
-        SQL
-      end
-
       def match_non_recurring_seasonal_prices_at(date)
         <<-SQL.squish
           price_type = 'seasonal'
           AND recurring IS FALSE
           AND start_date <= #{adapter.cast_to_date(date)}
           AND end_date >= #{adapter.cast_to_date(date)}
+        SQL
+      end
+
+      def match_recurring_seasonal_prices_at(date)
+        <<-SQL.squish
+          price_type = 'seasonal'
+          AND recurring IS TRUE
+          AND #{adapter.extract_month(date)} >= recurring_start_month
+          AND #{adapter.extract_month(date)} <= recurring_end_month
+          AND recurring_start_day IS NOT NULL
+          AND recurring_end_day IS NOT NULL
+          AND #{adapter.extract_day(date)} >= recurring_start_day
+          AND #{adapter.extract_day(date)} <= recurring_end_day
         SQL
       end
 

@@ -30,9 +30,7 @@ module Priced
     validate :dates_not_overlapped, if: :non_recurring_season?
     validates :recurring_start_month, :recurring_end_month, presence: true, if: :recurring_season?
     validates :recurring_start_day, :recurring_end_day, presence: true,
-              if: -> { recurring_season? && !recurring_start_wday? && !recurring_end_wday? }
-    validates :recurring_start_wday, :recurring_end_wday, presence: true,
-              if: -> { recurring_season? && !recurring_start_day? && !recurring_end_day? }
+              if: :recurring_season?
 
     def recurring_season?
       seasonal_price? && recurring?

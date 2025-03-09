@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_28_221430) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_09_194334) do
   create_table "priced_prices", force: :cascade do |t|
     t.string "priceable_type", null: false
     t.integer "priceable_id", null: false
@@ -24,10 +24,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_28_221430) do
     t.boolean "recurring", default: false
     t.integer "recurring_start_month"
     t.integer "recurring_start_day"
-    t.integer "recurring_start_wday"
     t.integer "recurring_end_month"
     t.integer "recurring_end_day"
-    t.integer "recurring_end_wday"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["duration_unit", "duration_value"], name: "index_priced_prices_on_duration"
@@ -35,7 +33,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_28_221430) do
     t.index ["priceable_type", "priceable_id"], name: "index_priced_prices_on_priceable"
     t.index ["recurring_start_day", "recurring_end_day"], name: "index_priced_prices_on_recurring_days"
     t.index ["recurring_start_month", "recurring_end_month"], name: "index_priced_prices_on_recurring_months"
-    t.index ["recurring_start_wday", "recurring_end_wday"], name: "index_priced_prices_on_recurring_wdays"
     t.index ["start_date", "end_date"], name: "index_priced_prices_on_dates"
   end
 

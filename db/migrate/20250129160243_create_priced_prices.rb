@@ -11,10 +11,8 @@ class CreatePricedPrices < ActiveRecord::Migration[8.0]
       t.boolean :recurring, default: false
       t.integer :recurring_start_month
       t.integer :recurring_start_day
-      t.integer :recurring_start_wday
       t.integer :recurring_end_month
       t.integer :recurring_end_day
-      t.integer :recurring_end_wday
       t.timestamps
 
       t.index :price_type, name: "index_priced_prices_on_price_type"
@@ -24,8 +22,6 @@ class CreatePricedPrices < ActiveRecord::Migration[8.0]
               name: "index_priced_prices_on_recurring_months"
       t.index %i[recurring_start_day recurring_end_day],
               name: "index_priced_prices_on_recurring_days"
-      t.index %i[recurring_start_wday recurring_end_wday],
-              name: "index_priced_prices_on_recurring_wdays"
     end
   end
 end
